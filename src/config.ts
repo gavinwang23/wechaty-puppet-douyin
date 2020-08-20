@@ -1,12 +1,3 @@
-/*
- * @Descripttion: 
- * @version: 
- * @Author: wangjunwei
- * @Date: 2020-07-28 00:45:21
- * @LastEditors: wangjunwei
- * @LastEditTime: 2020-08-20 23:12:38
- */
-
 import {
   FileBox,
 }             from 'wechaty-puppet'
