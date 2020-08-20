@@ -5,13 +5,13 @@ import { test }  from 'tstest'
 import { Wechaty } from 'wechaty'
 
 import {
-  PuppetMock,
+  PuppetDouyin,
   mock,
 }                         from '../src/mod'
 
 async function * wechatyFixture () {
   const mocker  = new mock.Mocker()
-  const puppet  = new PuppetMock({ mocker })
+  const puppet  = new PuppetDouyin({ mocker })
   const wechaty = new Wechaty({ puppet })
 
   try {
@@ -26,9 +26,10 @@ async function * wechatyFixture () {
     await wechaty.stop()
   }
 }
+
 test('integration testing', async t => {
   const mocker = new mock.Mocker()
-  const puppet = new PuppetMock({ mocker })
+  const puppet = new PuppetDouyin({ mocker })
   const wechaty = new Wechaty({ puppet })
 
   t.ok(wechaty, 'should instantiate wechaty with puppet mocker')
@@ -40,7 +41,7 @@ test('Contact.find() mocker.createContacts()', async t => {
     wechaty,
   } of wechatyFixture()) {
     const CONTACTS_NUM = 5
-    const [ user, mike ] = mocker.createContacts(CONTACTS_NUM)
+    const [user, mike] = mocker.createContacts(CONTACTS_NUM)
     mocker.login(user)
 
     const contactList = await wechaty.Contact.findAll()
@@ -61,7 +62,7 @@ test('Room.find() mocker.createRooms()', async t => {
     mocker.login(user)
 
     const ROOMS_NUM = 5
-    const [ starbucks ] = mocker.createRooms(ROOMS_NUM)
+    const [starbucks] = mocker.createRooms(ROOMS_NUM)
 
     const roomList = await wechaty.Room.findAll()
     t.equal(roomList.length, ROOMS_NUM, 'should find all rooms create by mocker')

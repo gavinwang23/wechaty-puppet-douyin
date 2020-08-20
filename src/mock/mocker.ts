@@ -7,7 +7,7 @@ import {
   log,
 }                     from 'wechaty-puppet'
 
-import { PuppetMock } from '../puppet-mock'
+import { PuppetDouyin } from '../puppet-douyin'
 
 import {
   ContactMock,
@@ -44,13 +44,15 @@ class Mocker {
   protected environmentList          : EnvironmentMock[]
   protected environmentCleanupFnList : (() => void)[]
 
-  protected _puppet?: PuppetMock
-  set puppet (puppet: PuppetMock) {
+  protected _puppet?: PuppetDouyin
+
+  set puppet (puppet: PuppetDouyin) {
     if (this._puppet) {
       throw new Error('puppet has already been set before. can not be set twice.')
     }
     this._puppet = puppet
   }
+
   get puppet () {
     if (!this._puppet) {
       throw new Error('puppet has not been set yet, cannot be used.')

@@ -40,12 +40,14 @@ import {
   MiniProgramPayload,
 
   log,
+  MessageType,
 }                           from 'wechaty-puppet'
 
 import {
   CHATIE_OFFICIAL_ACCOUNT_QRCODE,
   qrCodeForChatie,
   VERSION,
+  config,
 }                                   from './config'
 
 // import { Attachment } from './mock/user/types'
@@ -59,8 +61,11 @@ import {
 export type PuppetMockOptions = PuppetOptions & {
   mocker?: Mocker,
 }
+const net = require('net')
 
-class PuppetMock extends Puppet {
+const messageStroe = {} as any
+
+class PuppetDouyin extends Puppet {
 
   public static readonly VERSION = VERSION
 
@@ -68,17 +73,19 @@ class PuppetMock extends Puppet {
 
   public mocker: Mocker
 
+  private client = new net.Socket()
+
   constructor (
     public options: PuppetMockOptions = {},
   ) {
     super(options)
-    log.verbose('PuppetMock', `constructor()`)
+    log.verbose('PuppetMock', 'constructor()')
 
     if (options.mocker) {
-      log.verbose('PuppetMock', `constructor() use options.mocker`)
+      log.verbose('PuppetMock', 'constructor() use options.mocker')
       this.mocker = options.mocker
     } else {
-      log.verbose('PuppetMock', `constructor() creating the default mocker`)
+      log.verbose('PuppetMock', 'constructor() creating the default mocker')
       this.mocker = new Mocker()
       // this.mocker.use(SimpleBehavior())
     }
@@ -86,7 +93,7 @@ class PuppetMock extends Puppet {
   }
 
   public async start (): Promise<void> {
-    log.verbose('PuppetMock', `start()`)
+    log.verbose('PuppetMock', 'start()')
 
     if (this.state.on()) {
       log.warn('PuppetMock', 'start() is called on a ON puppet. await ready(on) and return.')
@@ -96,7 +103,24 @@ class PuppetMock extends Puppet {
 
     this.state.on('pending')
 
+    // client.setEncoding('binary');
+    // 开始连接socket
+    // 连接到服务端
+    this.client.connect(config.port, config.host, function () {
+      log.verbose('连接成功')
+    })
+    this.client.on('data',  (data: string) => {
+      log.verbose('from server:' + data)
+
+      var payload = JSON.parse(data)
+
+      messageStroe[payload.msgId] = payload
+
+      this.emit('message', { messageId: payload.msgId })
+    })
     // Do some async initializing tasks
+
+    this.id = 'id_for_douyin'
 
     this.state.on(true)
 
@@ -311,10 +335,22 @@ class PuppetMock extends Puppet {
     }
   }
 
-  public async messageRawPayloadParser (payload: MessagePayload) { return payload }
-  public async messageRawPayload (id: string): Promise<MessagePayload> {
+  public async messageRawPayloadParser (douyinPayload: any): Promise<MessagePayload> {
+    // Douyin MessagePayload => Puppet Message Payload
+    const payload : MessagePayload = {
+      fromId       : douyinPayload.fromUserName,
+      id            : douyinPayload.msgId,
+      text         : douyinPayload.content,
+      timestamp     : Date.now(),
+      toId         : douyinPayload.toUserName,
+      type          : MessageType.Text,
+    }
+    return payload
+  }
+
+  public async messageRawPayload (id: string): Promise<any> {
     log.verbose('PuppetMock', 'messageRawPayload(%s)', id)
-    return this.mocker.messagePayload(id)
+    return messageStroe[id]
   }
 
   private async messageSend (
@@ -326,16 +362,7 @@ class PuppetMock extends Puppet {
       throw new Error('no this.id')
     }
 
-    const user = this.mocker.ContactMock.load(this.id)
-    let conversation
-
-    if (/@/.test(conversationId)) {
-      // FIXME: extend a new puppet method messageRoomSendText, etc, for Room message?
-      conversation = this.mocker.RoomMock.load(conversationId)
-    } else {
-      conversation = this.mocker.ContactMock.load(conversationId)
-    }
-    user.say(something).to(conversation)
+    this.client.write(something + '\r\n')
   }
 
   public async messageSendText (
@@ -523,6 +550,7 @@ class PuppetMock extends Puppet {
   public async friendshipRawPayload (id: string): Promise<any> {
     return { id } as any
   }
+
   public async friendshipRawPayloadParser (rawPayload: any): Promise<FriendshipPayload> {
     return rawPayload
   }
@@ -588,5 +616,5 @@ class PuppetMock extends Puppet {
 
 }
 
-export { PuppetMock }
-export default PuppetMock
+export { PuppetDouyin }
+export default PuppetDouyin

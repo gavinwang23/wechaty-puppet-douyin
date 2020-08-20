@@ -18,7 +18,7 @@ import {
   FileBox,
 }                         from 'wechaty-puppet'
 
-import { PuppetMock }         from '../puppet-mock'
+import { PuppetDouyin }         from '../puppet-douyin'
 
 import { MessageMock }        from './user/message-mock'
 
@@ -32,9 +32,9 @@ class MockerTest extends Mocker {
 
 function createFixture () {
   const mocker = new Mocker()
-  const puppet = new PuppetMock({ mocker })
+  const puppet = new PuppetDouyin({ mocker })
 
-  const [ user, mike, mary ] = mocker.createContacts(3)
+  const [user, mike, mary] = mocker.createContacts(3)
   const room = mocker.createRoom({
     memberIdList: [
       mike.id,
@@ -56,7 +56,7 @@ function createFixture () {
 test('Mocker restart without problem', async t => {
   const mocker = new MockerTest()
   mocker.use(SimpleEnvironment())
-  const puppet = new PuppetMock({ mocker })
+  const puppet = new PuppetDouyin({ mocker })
   void puppet
 
   try {
