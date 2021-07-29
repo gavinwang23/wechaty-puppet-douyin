@@ -18,7 +18,7 @@ autojs pro 7.6
 5. 打开auto.js 运行autoSocket.js
 6. 返回抖音的消息页面
 
-客户端：[https://github.com/gavinwang23/wechaty-puppet-douyin](https://github.com/gavinwang23/wechaty-puppet-douyin)
+客户端：
 1. 将config.ts中的host改为你自己的安卓模拟器ip
 2. > node examples/ding-dong-bot.ts
 
